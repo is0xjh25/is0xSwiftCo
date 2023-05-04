@@ -26,7 +26,6 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
         OVAL,
     }
 
-    private static final long serialVersionUID = 1L;
     private Action state;
     private Point currPoint;
     private Point prevPoint;
@@ -80,6 +79,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
 
         g2d.setColor(color);
         g2d.setStroke(pen);
+
         switch(state) {
             case PENDING:
             case TEXT:
@@ -110,7 +110,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
                     isModified = true;
                 break;
             default:
-                g2d.drawString("DRAWING Error", 10, 10);
+                g2d.drawString("DRAWING ERROR", 10, 10);
         }
 
         g.drawImage(bufferImage, 0, 0, null);
@@ -139,8 +139,8 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
         }
     }
 
-    public void resetState(Action prevState) {
-        state = prevState;
+    public void resetState() {
+        state = Action.PENDING;
         currPoint = null;
         prevPoint = null;
         startPoint = null;
@@ -162,7 +162,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
 //            writer.write(json + "\n");
 //            writer.flush();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Connection Failed", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Connection Failed.", "CONNECTION ERROR", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
     }
@@ -251,6 +251,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     }
     public void setBufferImage(BufferedImage bufferImage) {
         this.bufferImage = bufferImage;
+        repaint();
     }
     public BufferedImage getPrev() {
         return prev;

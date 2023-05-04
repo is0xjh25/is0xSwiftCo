@@ -1,60 +1,85 @@
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 
 public class TextBox extends JDialog implements ActionListener {
-    private JPanel textPanel;
-    private JPanel buttonPanel;
+    private final WhiteBoard whiteBoard;
+    private final Point inputPoint;
     private JTextField textField;
-    private JButton button;
+    private int fontSize;
+    private int fontType;
+    private String fontFamily;
 
-    private WhiteBoard wb;
-    public String text;
-    private Point inputPoint;
-
-    public TextBox(WhiteBoard wb, Point point) {
-        this.wb = wb;
+    public TextBox(WhiteBoard whiteBoard, Point point) {
+        this.whiteBoard = whiteBoard;
         this.inputPoint = point;
+        init();
+    }
 
+    private void init() {
+        setLayout(new BorderLayout());
         setTitle("Enter the Text");
-        textPanel = new JPanel();
-        textPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JPanel textPanel = new JPanel();
         textField = new JTextField(30);
-        textPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         textPanel.add(textField);
 
-        buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        button = new JButton("TYPE");
-        button.addActionListener(this);
-        buttonPanel.add(button);
-        getContentPane().setLayout(new GridLayout(2,1));
-        getContentPane().add(textPanel);
-        getContentPane().add(buttonPanel);
+        JPanel comboBoxPanel = new JPanel(new FlowLayout());
+        // default setting for font
+        fontSize = 24;
+        fontType = 0;
+        fontFamily = "Serif";
+
+        JLabel sizeLabel = new JLabel("Size:");
+        JComboBox<Integer> fontSizesComboBox = new JComboBox<Integer>(new Integer[] {24, 36, 48});
+        fontSizesComboBox.setSelectedIndex(0);
+        fontSizesComboBox.addItemListener(e -> fontSize = (int) fontSizesComboBox.getSelectedItem());
+
+        JLabel typeLabel = new JLabel("Type:");
+        JComboBox<String> fontTypesComboBox = new JComboBox<String>(new String[] {"Plain", "Bold", "Italic"});
+        fontTypesComboBox.setSelectedIndex(0);
+        fontTypesComboBox.addItemListener(e -> fontType = fontTypesComboBox.getSelectedIndex());
+
+        JLabel familyLabel = new JLabel("Family:");
+        JComboBox<String> fontFamiliesComboBox = new JComboBox<String>(new String[] {"Serif", "SansSerif", "Mono"});
+        fontFamiliesComboBox.setSelectedIndex(0);
+        fontFamiliesComboBox.addItemListener(e -> fontFamily = fontFamiliesComboBox.getSelectedItem().toString());
+
+        comboBoxPanel.add(sizeLabel);
+        comboBoxPanel.add(fontSizesComboBox);
+        comboBoxPanel.add(typeLabel);
+        comboBoxPanel.add(fontTypesComboBox);
+        comboBoxPanel.add(familyLabel);
+        comboBoxPanel.add(fontFamiliesComboBox);
+
+        JPanel buttonPanel = new JPanel();
+        JButton enterButton = new JButton("ENTER");
+        enterButton.addActionListener(this);
+        buttonPanel.add(enterButton);
+
+        add(textPanel, BorderLayout.NORTH);
+        add(comboBoxPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(400, 100);
+        setSize(600, 150);
         setLocationRelativeTo(null);
-        setLocation(point.x, point.y);
+        setLocation(inputPoint.x, inputPoint.y);
         setResizable(false);
         setVisible(true);
     }
 
     public void actionPerformed(ActionEvent e) {
-        text = textField.getText();
-
         try {
-            Graphics2D g2d = wb.getG2d();
-            g2d.setFont(new Font("Serif", Font.PLAIN, 24));
-            g2d.drawString(text, inputPoint.x, inputPoint.y);
-            wb.repaint();
-            wb.setModified(true);
-            wb.sendBufferImage();
-        } catch (NullPointerException e1) {
-            System.out.println(e1.getMessage());
+            Graphics2D g2d = whiteBoard.getG2d();
+            g2d.setFont(new Font(fontFamily, fontType, fontSize));
+            g2d.drawString(textField.getText(), inputPoint.x, inputPoint.y);
+            whiteBoard.repaint();
+            whiteBoard.setModified(true);
+            whiteBoard.sendBufferImage();
+        } catch (NullPointerException ex) {
+            System.out.println(ex.getMessage());
         }
-
         dispose();
     }
 }

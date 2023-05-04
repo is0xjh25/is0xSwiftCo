@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -11,66 +13,81 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class ManagerBar extends JPanel {
-
+public class ManagerBar extends JPanel implements ActionListener {
     private static final String WEBSITE = "https://is0xjh25.github.io";
     private static final String EMAIL = "mailto:is0.jimhsiao@gmail.com?subject=Problem%20With%20is0xCollectiveDict";
-
-    private WhiteBoard wb;
+    private final WhiteBoard whiteBoard;
+    private final Boolean isManager;
     private JFileChooser fileChooser;
     private String fileName;
-    private JButton open;
-    private JButton save;
-    private JButton saveAs;
-    private JButton newOne;
 
-    public ManagerBar() {
-//        this.wb = wb;
+    public ManagerBar(WhiteBoard whiteBoard, Boolean isManager) {
+        this.whiteBoard = whiteBoard;
+        this.isManager = isManager;
         init();
     }
 
     private void init() {
         setBackground(Color.DARK_GRAY);
         setLayout(new BorderLayout());
-        open = new JButton("OPEN");
-        open.setFont(new Font("Mono", Font.BOLD, 10));
-        save = new JButton("SAVE");
-        save.setFont(new Font("Mono", Font.BOLD, 10));
-        saveAs = new JButton("SAVE AS");
-        saveAs.setFont(new Font("Mono", Font.BOLD, 10));
-        newOne = new JButton("NEW ONE");
-        newOne.setFont(new Font("Mono", Font.BOLD, 10));
-        JPanel buttons = new JPanel(new GridBagLayout());
-        buttons.setBackground(Color.DARK_GRAY);
-        buttons.add(open, new GridBagConstraints());
-        buttons.add(save, new GridBagConstraints());
-        buttons.add(saveAs, new GridBagConstraints());
-        buttons.add(newOne, new GridBagConstraints());
-        JLabel report = new JLabel("Find a problem? Tell us.", SwingConstants.LEFT);
-        report.setBorder(new EmptyBorder(0,25,0,0));
-        report.setFont(new Font("Arial", Font.ITALIC, 10));
-        report.setForeground (Color.GRAY);
-        report.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        sendMail(report);
-        JLabel copyright = new JLabel("Developed by is0xjh25©", SwingConstants.RIGHT);
-        copyright.setBorder(new EmptyBorder(0,0,0,25));
-        copyright.setFont(new Font("Arial", Font.ITALIC, 10));
-        copyright.setForeground (Color.GRAY);
-        copyright.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        goWebsite(copyright);
 
-        add(buttons, BorderLayout.CENTER);
-        add(report, BorderLayout.WEST);
-        add(copyright, BorderLayout.EAST);
+        JButton openButton = new JButton("OPEN");
+        openButton.setFont(new Font("Mono", Font.BOLD, 10));
+        openButton.addActionListener(this);
+        openButton.setActionCommand(openButton.getName());
+
+        JButton saveButton = new JButton("SAVE");
+        saveButton.setFont(new Font("Mono", Font.BOLD, 10));
+        saveButton.addActionListener(this);
+        saveButton.setActionCommand(saveButton.getName());
+
+        JButton saveAsButton = new JButton("SAVE AS");
+        saveAsButton.setFont(new Font("Mono", Font.BOLD, 10));
+        saveAsButton.addActionListener(this);
+        saveAsButton.setActionCommand(saveAsButton.getName());
+
+        JButton newOneButton = new JButton("NEW ONE");
+        newOneButton.setFont(new Font("Mono", Font.BOLD, 10));
+        newOneButton.addActionListener(this);
+        newOneButton.setActionCommand(newOneButton.getName());
+
+        JPanel buttonsPanel = new JPanel(new GridBagLayout());
+        buttonsPanel.setBackground(Color.DARK_GRAY);
+        buttonsPanel.add(openButton, new GridBagConstraints());
+        buttonsPanel.add(saveButton, new GridBagConstraints());
+        buttonsPanel.add(saveAsButton, new GridBagConstraints());
+        buttonsPanel.add(newOneButton, new GridBagConstraints());
+
+        // footers
+        JLabel reportLabel = new JLabel("Find a problem? Tell us.", SwingConstants.LEFT);
+        reportLabel.setBorder(new EmptyBorder(0,25,0,0));
+        reportLabel.setFont(new Font("Arial", Font.ITALIC, 10));
+        reportLabel.setForeground (Color.GRAY);
+        reportLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        sendMail(reportLabel);
+        JLabel copyrightLabel = new JLabel("Developed by is0xjh25©", SwingConstants.RIGHT);
+        copyrightLabel.setBorder(new EmptyBorder(0,0,0,25));
+        copyrightLabel.setFont(new Font("Arial", Font.ITALIC, 10));
+        copyrightLabel.setForeground (Color.GRAY);
+        copyrightLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        goWebsite(copyrightLabel);
+
+        // only managers can see the buttons
+        if (isManager) add(buttonsPanel, BorderLayout.CENTER);
+        add(reportLabel, BorderLayout.WEST);
+        add(copyrightLabel, BorderLayout.EAST);
+
+        // file chooser set up
         fileChooser = new JFileChooser();
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image (*.jpg)", "jpg", "jpeg"));
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image (*.png)", "png"));
     }
 
-    public void newWhiteBoard() {
-        if (wb.isModified()) {
-            int res = JOptionPane.showConfirmDialog(wb, "Want to save changes before you create a new one?", "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION);
+    // warning when white board closed without saving
+    private void newWhiteBoard() {
+        if (whiteBoard.isModified()) {
+            int res = JOptionPane.showConfirmDialog(whiteBoard, "Want to save changes before you create a new one?", "SAVE CHANGES", JOptionPane.YES_NO_CANCEL_OPTION);
             if (res == JOptionPane.YES_OPTION) {
                 save();
             } else if (res == JOptionPane.CANCEL_OPTION) {
@@ -78,34 +95,34 @@ public class ManagerBar extends JPanel {
             }
         }
 
-        wb.setBufferImage(null);
-        wb.resetState(wb.getState());
-        wb.paint(wb.getGraphics());
-        wb.repaint();
-        wb.sendBufferImage();
+        whiteBoard.setBufferImage(null);
+        whiteBoard.resetState();
+        whiteBoard.paint(whiteBoard.getGraphics());
+        whiteBoard.repaint();
+        whiteBoard.sendBufferImage();
     }
 
-    public void open() {
-        int res = fileChooser.showOpenDialog(wb);
+    private void open() {
+        int res = fileChooser.showOpenDialog(whiteBoard);
         try {
             if (res == JFileChooser.APPROVE_OPTION) {
-                Image img = ImageIO.read(fileChooser.getSelectedFile());
-                wb.setBufferImage((BufferedImage)img);
-                wb.setG2d((BufferedImage)img);
-                wb.paint(wb.getGraphics());
-                wb.repaint();
+                BufferedImage img = ImageIO.read(fileChooser.getSelectedFile());
+                whiteBoard.setBufferImage(img);
+                whiteBoard.setG2d(img);
+                whiteBoard.paint(whiteBoard.getGraphics());
+                whiteBoard.repaint();
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        wb.setModified(false);
-        wb.sendBufferImage();
+        whiteBoard.setModified(false);
+        whiteBoard.sendBufferImage();
     }
 
-    public void save( ) {
+    private void save( ) {
         if (fileName == null || fileName.isEmpty()) {
-            int res = fileChooser.showSaveDialog(wb);
+            int res = fileChooser.showSaveDialog(whiteBoard);
             if (res == JFileChooser.APPROVE_OPTION) {
                 fileName = fileChooser.getSelectedFile().getAbsolutePath();
             } else if (res == JFileChooser.CANCEL_OPTION) {
@@ -118,8 +135,8 @@ public class ManagerBar extends JPanel {
 
         if (format.equalsIgnoreCase("png")) {
             try {
-                ImageIO.write(wb.getBufferImage(), format, file);
-                wb.setModified(false);
+                ImageIO.write(whiteBoard.getBufferImage(), format, file);
+                whiteBoard.setModified(false);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -128,8 +145,8 @@ public class ManagerBar extends JPanel {
                 file = new File(fileName.concat(".jpg"));
             }
             try {
-                ImageIO.write(wb.getBufferImage(), "jpg", file);
-                wb.setModified(false);
+                ImageIO.write(whiteBoard.getBufferImage(), "jpg", file);
+                whiteBoard.setModified(false);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -141,10 +158,10 @@ public class ManagerBar extends JPanel {
         save();
     }
 
-    public void exit( ) {
-        if (wb.isModified()) {
-            int res = JOptionPane.showConfirmDialog(wb, "Save Changes to File?", "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION);
-
+    // warn managers to save file before leaving
+    public void exitWarning( ) {
+        if (whiteBoard.isModified() && isManager) {
+            int res = JOptionPane.showConfirmDialog(whiteBoard, "Save changes to file?", "SAVE CHANGES", JOptionPane.YES_NO_CANCEL_OPTION);
             if (res == JOptionPane.YES_OPTION) {
                 save();
                 System.exit(0);
@@ -156,8 +173,14 @@ public class ManagerBar extends JPanel {
         }
     }
 
-    public void setCanvas(WhiteBoard wb) {
-        this.wb = wb;
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        switch (command) {
+            case "OPEN" -> open();
+            case "SAVE" -> save();
+            case "SAVE AS" -> saveAs();
+            case "NEW ONE" -> newWhiteBoard();
+        }
     }
 
     /* HELPER FUNCTIONS */
