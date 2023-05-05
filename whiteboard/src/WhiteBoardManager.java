@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class Gui extends JFrame {
+public class WhiteBoardManager extends JFrame {
 
     private Socket socket;
     private Boolean isManager;
@@ -16,8 +16,8 @@ public class Gui extends JFrame {
     private WhiteBoard whiteBoard;
     private ManagerBar managerBar;
 
-    public Gui() {
-        super("Shared White Board");
+    public WhiteBoardManager() {
+        super("SWIFTCO - SHARED WHITE BOARD");
         init();
     }
 
@@ -32,7 +32,7 @@ public class Gui extends JFrame {
         ParticipantsBox participantsBox = new ParticipantsBox(isManager, "Jim"); //socket
         managerBar = new ManagerBar(whiteBoard, isManager); // whiteBoard, isManager
         ArrayList<String> temp = new ArrayList<String>();
-        temp.add("Harry");
+        temp.add("123456789012345");
         temp.add("Matt");
         temp.add("Tom");
         temp.add("Jim");
@@ -121,6 +121,6 @@ public class Gui extends JFrame {
 
     /* Main Function */
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Gui().setVisible(true));
+        SwingUtilities.invokeLater(() -> new WhiteBoardManager().setVisible(true));
     }
 }

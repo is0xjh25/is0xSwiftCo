@@ -15,7 +15,7 @@ import java.util.Base64;
 
 public class WhiteBoard extends Canvas implements MouseListener, MouseMotionListener {
 
-    enum Action {
+    public enum Action {
         PENDING,
         HAND_DRAW,
         ERASE,
