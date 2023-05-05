@@ -68,7 +68,7 @@ public class WhiteBoardManager extends JFrame {
     private void closeAPP() {
         int ans = JOptionPane.showConfirmDialog (
                 null,
-                "Do you want to leave the shared white board?",
+                "Do you want to leave SwiftCo?",
                 "CLOSED APP",
                 JOptionPane.YES_NO_OPTION);
 

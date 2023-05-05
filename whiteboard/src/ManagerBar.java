@@ -106,6 +106,7 @@ public class ManagerBar extends JPanel implements ActionListener {
         int res = fileChooser.showOpenDialog(whiteBoard);
         try {
             if (res == JFileChooser.APPROVE_OPTION) {
+                whiteBoard.resetState();
                 BufferedImage img = ImageIO.read(fileChooser.getSelectedFile());
                 whiteBoard.setBufferImage(img);
                 whiteBoard.setG2d(img);
@@ -161,7 +162,7 @@ public class ManagerBar extends JPanel implements ActionListener {
     // warn managers to save file before leaving
     public void exitWarning( ) {
         if (whiteBoard.isModified() && isManager) {
-            int res = JOptionPane.showConfirmDialog(whiteBoard, "Save changes to file?", "SAVE CHANGES", JOptionPane.YES_NO_CANCEL_OPTION);
+            int res = JOptionPane.showConfirmDialog(whiteBoard, "Save changes before you leave?", "SAVE CHANGES", JOptionPane.YES_NO_CANCEL_OPTION);
             if (res == JOptionPane.YES_OPTION) {
                 save();
                 System.exit(0);

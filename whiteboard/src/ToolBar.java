@@ -113,9 +113,9 @@ public class ToolBar extends JPanel implements ActionListener {
 
                 JLabel sizeLabel = new JLabel("Stroke Size");
                 sizeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-                JComboBox<Integer> sizesComboBox = new JComboBox<Integer>(new Integer[]{2, 8, 12, 14, 18, 24});
+                JComboBox<String> sizesComboBox = new JComboBox<String>(new String[]{"2", "8", "12", "14", "18", "24"});
                 sizesComboBox.setSelectedIndex(0);
-                sizesComboBox.addItemListener(e13 -> whiteBoard.setPen(new BasicStroke((float)sizesComboBox.getSelectedItem(), whiteBoard.getPen().getEndCap(), whiteBoard.getPen().getLineJoin())));
+                sizesComboBox.addItemListener(e13 -> whiteBoard.setPen(new BasicStroke(Float.parseFloat((String) sizesComboBox.getSelectedItem()), whiteBoard.getPen().getEndCap(), whiteBoard.getPen().getLineJoin())));
 
                 JLabel capLabel = new JLabel("Stroke Cap");
                 capLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
