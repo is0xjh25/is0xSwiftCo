@@ -11,7 +11,7 @@ public class CreateWhiteBoard {
         gui = new Gui(usage);
     }
 
-    /* Main Function */
+    /* MAIN FUNCTION */
     public static void main(String[] args) {
         CreateWhiteBoard cwb = new CreateWhiteBoard();
     }

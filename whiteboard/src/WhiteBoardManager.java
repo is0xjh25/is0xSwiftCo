@@ -119,7 +119,7 @@ public class WhiteBoardManager extends JFrame {
         this.username = username;
     }
 
-    /* Main Function */
+    /* MAIN FUNCTION */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new WhiteBoardManager().setVisible(true));
     }
