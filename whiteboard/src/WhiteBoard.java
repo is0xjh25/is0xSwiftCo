@@ -141,6 +141,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
 
     public void resetState() {
         state = Action.PENDING;
+
         currPoint = null;
         prevPoint = null;
         startPoint = null;

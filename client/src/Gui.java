@@ -15,6 +15,7 @@ public class Gui extends JFrame {
     }
 
     private Usage usage;
+    private JPanel headerPanel;
     private JPanel roomIDPanel;
     private JPanel usernamePanel;
     private JPanel buttonsPanel;
@@ -36,12 +37,14 @@ public class Gui extends JFrame {
     }
 
     private void init() {
-        setLayout(new GridLayout(4, 1));
+        setLayout(new GridLayout(5, 1));
         setPreferredSize(new Dimension(400, 480));
+        setHeaderPanel();
         setUsernamePanel();
         setRoomIDPanel();
         setButtonsPanel();
         setHintPanel();
+        add(headerPanel);
         add(roomIDPanel);
         add(usernamePanel);
         add(buttonsPanel);
@@ -68,11 +71,19 @@ public class Gui extends JFrame {
     }
 
     /* SETUP PANELS */
+    private void setHeaderPanel() {
+        headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.DARK_GRAY);
+        JLabel headerLabel = new JLabel("~ SwiftCo ~", SwingConstants.CENTER);
+        headerLabel.setForeground(Color.WHITE);
+        headerLabel.setFont(new Font("Mono", Font.BOLD, 40));
+        headerPanel.add(headerLabel, BorderLayout.CENTER);
+    }
     private void setRoomIDPanel() {
         roomIDPanel = new JPanel();
         roomIDPanel.setBackground(Color.DARK_GRAY);
         JLabel roomIDLabel = new JLabel("Room ID", SwingConstants.CENTER);
-        roomIDLabel.setPreferredSize(new Dimension(400, 60));
+        roomIDLabel.setPreferredSize(new Dimension(400, 30));
         roomIDLabel.setFont(new Font("Mono", Font.BOLD, 20));
         roomIDLabel.setForeground(Color.WHITE);
         roomIDTextField = new JTextField(3);
@@ -89,13 +100,13 @@ public class Gui extends JFrame {
         usernamePanel = new JPanel();
         usernamePanel.setBackground(Color.DARK_GRAY);
         JLabel usernameLabel = new JLabel("Name Yourself", SwingConstants.CENTER);
-        usernameLabel.setPreferredSize(new Dimension(400,60));
+        usernameLabel.setPreferredSize(new Dimension(400,30));
         usernameLabel.setFont(new Font("Mono", Font.BOLD, 20));
         usernameLabel.setForeground(Color.WHITE);
-        usernameTextField = new JTextField(username, 11);
-        usernameTextField.setFont(new Font("Mono", Font.PLAIN, 20));
+        usernameTextField = new JTextField(username, 10);
+        usernameTextField.setFont(new Font("Mono", Font.PLAIN, 22));
         usernameTextField.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) { if (usernameTextField.getText().length() >= 16) e.consume(); }
+            public void keyTyped(KeyEvent e) { if (usernameTextField.getText().length() >= 15) e.consume(); }
             public void keyReleased(KeyEvent e) { username = ((JTextField) e.getSource()).getText(); }
         });
         usernamePanel.add(usernameLabel);

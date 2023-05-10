@@ -95,6 +95,7 @@ public class ManagerBar extends JPanel implements ActionListener {
             }
         }
 
+        fileName = null;
         whiteBoard.setBufferImage(null);
         whiteBoard.resetState();
         whiteBoard.paint(whiteBoard.getGraphics());
