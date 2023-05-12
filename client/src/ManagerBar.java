@@ -16,14 +16,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class ManagerBar extends JPanel implements ActionListener {
     private static final String WEBSITE = "https://is0xjh25.github.io";
     private static final String EMAIL = "mailto:is0.jimhsiao@gmail.com?subject=Problem%20With%20is0xCollectiveDict";
+    private final ClientProcessor cp;
     private final WhiteBoard whiteBoard;
-    private final Boolean isManager;
     private JFileChooser fileChooser;
     private String fileName;
 
-    public ManagerBar(WhiteBoard whiteBoard, Boolean isManager) {
+    public ManagerBar(ClientProcessor cp, WhiteBoard whiteBoard) {
+        this.cp = cp;
         this.whiteBoard = whiteBoard;
-        this.isManager = isManager;
         init();
     }
 
@@ -73,7 +73,7 @@ public class ManagerBar extends JPanel implements ActionListener {
         goWebsite(copyrightLabel);
 
         // only managers can see the buttons
-        if (isManager) add(buttonsPanel, BorderLayout.CENTER);
+        if (cp.getManager()) add(buttonsPanel, BorderLayout.CENTER);
         add(reportLabel, BorderLayout.WEST);
         add(copyrightLabel, BorderLayout.EAST);
 
@@ -162,16 +162,16 @@ public class ManagerBar extends JPanel implements ActionListener {
 
     // warn managers to save file before leaving
     public void exitWarning( ) {
-        if (whiteBoard.isModified() && isManager) {
+        if (whiteBoard.isModified() && cp.getManager()) {
             int res = JOptionPane.showConfirmDialog(whiteBoard, "Save changes before you leave?", "SAVE CHANGES", JOptionPane.YES_NO_CANCEL_OPTION);
             if (res == JOptionPane.YES_OPTION) {
                 save();
-                System.exit(0);
+                cp.getWhiteBoardManager().setMenu();
             } else if (res == JOptionPane.NO_OPTION) {
-                System.exit(0);
+                cp.getWhiteBoardManager().setMenu();
             }
         } else {
-            System.exit(0);
+            cp.getWhiteBoardManager().setMenu();
         }
     }
 

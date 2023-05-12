@@ -40,16 +40,16 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     private Color color = Color.BLACK;
     private boolean isModified;
     private Boolean isSent;
-//    private final Socket socket;
+    private final ClientProcessor cp;
 
-    public WhiteBoard() {
+    public WhiteBoard(ClientProcessor cp) {
         init();
-        //        this.socket = socket;
+        this.cp = cp;
         repaint();
     }
 
     private void init() {
-        setBackground(Color.RED);
+        setBackground(Color.WHITE);
         addMouseListener(this);
         addMouseMotionListener(this);
         state = Action.PENDING;
@@ -290,7 +290,4 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     public void setSent(Boolean sent) {
         isSent = sent;
     }
-//    public Socket getSocket() {
-//        return socket;
-//    }
 }

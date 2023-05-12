@@ -10,12 +10,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class ChatBox extends JPanel {
-    private final int roomID;
-    private Box messagesBox;
-    private String input;
 
-    public ChatBox(int roomID) {
-        this.roomID = roomID;
+    private ClientProcessor cp;
+    private Box messagesBox;
+
+    public ChatBox(ClientProcessor cp) {
+        this.cp = cp;
         init();
     }
 
@@ -27,7 +27,7 @@ public class ChatBox extends JPanel {
         headerPanel.setBackground(Color.DARK_GRAY);
         headerPanel.setPreferredSize(new Dimension(250, 75));
         headerPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
-        JLabel roomLabel = new JLabel("ROOM ID: #" + roomID, SwingConstants.CENTER);
+        JLabel roomLabel = new JLabel("ROOM ID: #" + cp.getRoomID(), SwingConstants.CENTER);
         roomLabel.setForeground(Color.WHITE);
         roomLabel.setFont(new Font("Mono", Font.BOLD, 16));
         JLabel userLabel = new JLabel("Participant", SwingConstants.CENTER);

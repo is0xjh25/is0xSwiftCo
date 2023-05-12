@@ -1,44 +1,37 @@
 import org.json.JSONObject;
-
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Objects;
 
 public class Room {
     private final String roomID;
-    private final User manager;
-    private final HashSet<User> userList;
+    private final ServerProcessor manager;
+    private final HashMap<String, ServerProcessor> userList;
     private JSONObject encodeWhitBoard;
 
-
     // only manager can create a new room
-    public Room(String roomID, User manager) {
+    public Room(String roomID, ServerProcessor manager) {
         this.roomID = roomID;
         this.manager = manager;
-        userList = new HashSet<>();
+        userList = new HashMap<>();
         encodeWhitBoard = new JSONObject();
-        userList.add(manager);
+        userList.put(manager.getUsername(), manager);
     }
 
     public boolean isUserExist(String username) {
-        for (User u : userList) {
-            if (u.getUsername().equals(username)) return true;
-        }
-        return false;
+        return userList.containsKey(username);
     }
-
-    public void addUser(User user) {
-        userList.add(user);
+    public void addUser(ServerProcessor participant) {
+        userList.put(participant.getUsername(), participant);
     }
 
     /* GETTERS */
     public String getRoomID() {
         return roomID;
     }
-    public User getManager() {
+    public ServerProcessor getManager() {
         return manager;
     }
-    public HashSet<User> getUserList() {
+    public HashMap<String, ServerProcessor> getUserList() {
         return userList;
     }
     public JSONObject getEncodeWhitBoard() {
@@ -47,12 +40,7 @@ public class Room {
     public void setEncodeWhitBoard(JSONObject encodeWhitBoard) {
         this.encodeWhitBoard = encodeWhitBoard;
     }
-    public User findUser(String username) {
-        for (User u : userList) {
-            if (u.getUsername().equals(username)) return u;
-        }
-        return null;
-    }
+
     // override equals function, only be checked by roomID
     @Override
     public boolean equals(Object o) {

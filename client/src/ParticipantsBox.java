@@ -13,19 +13,12 @@ import jiconfont.swing.IconFontSwing;
 import org.json.JSONObject;
 
 public class ParticipantsBox extends JPanel implements ActionListener {
-
-    private Socket socket;
-    private final boolean isManager;
-    private final String username;
-    private String manager;
+    private final ClientProcessor cp;
     private List<String> participants;
     private Box participantsBox;
 
-//    Socket socket, boolean isManager, String username
-    public ParticipantsBox(Boolean isManager, String username) {
-        //        this.managerSocket = socket;
-        this.isManager = isManager;
-        this.username = username;
+    public ParticipantsBox(ClientProcessor cp) {
+        this.cp = cp;
         participants = new ArrayList<>();
         init();
     }
@@ -63,10 +56,10 @@ public class ParticipantsBox extends JPanel implements ActionListener {
     private void displayParticipants() {
         int count = 0;
         for (String p : participants) {
-            if (p.equals(username)) continue;
+            if (p.equals(cp.getUsername())) continue;
             JPanel participantPanel = new JPanel(new BorderLayout());
             participantPanel.setPreferredSize(new Dimension(230,40));
-            if (isManager) {
+            if (cp.getManager()) {
                 JButton removeButton = new JButton();
                 removeButton.setIcon(IconFontSwing.buildIcon(FontAwesome.MINUS, 20));
                 removeButton.setPreferredSize(new Dimension(40, 40));
@@ -86,10 +79,6 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         }
     }
 
-    public void setManager(String manager) {
-        this.manager = manager;
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -102,7 +91,7 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         int res = JOptionPane.showConfirmDialog(null, "Do you want to remove "+name+"?", "KICK OUT", JOptionPane.YES_NO_OPTION);
         if (res == JOptionPane.YES_OPTION) {
             try {
-                OSWriter = new OutputStreamWriter(this.socket.getOutputStream(), StandardCharsets.UTF_8);
+                OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 OSWriter.write(json + "\n");
                 OSWriter.flush();
             } catch (Exception error) {
