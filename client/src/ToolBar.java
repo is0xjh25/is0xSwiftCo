@@ -95,7 +95,7 @@ public class ToolBar extends JPanel implements ActionListener {
             case "TEXT" -> whiteBoard.setState(WhiteBoard.Action.TEXT);
             case "HAND" -> whiteBoard.setState(WhiteBoard.Action.HAND_DRAW);
             case "COLOR" -> {
-                Color pickedColor = JColorChooser.showDialog(this, "Select Pen Color", whiteBoard.getColor());
+                Color pickedColor = JColorChooser.showDialog(whiteBoard, "Select Pen Color", whiteBoard.getColor());
                 whiteBoard.setColor(pickedColor);
                 colorButton.setForeground(pickedColor);
                 colorButton.setIcon(IconFontSwing.buildIcon(FontAwesome.PAINT_BRUSH, 35, pickedColor));
@@ -137,7 +137,7 @@ public class ToolBar extends JPanel implements ActionListener {
                 dialogPanel.add(joinsComboBox);
 
                 // display optional panel
-                int result = JOptionPane.showConfirmDialog(null, dialogPanel, "ADJUST STROKE", JOptionPane.OK_CANCEL_OPTION);
+                int result = JOptionPane.showConfirmDialog(whiteBoard, dialogPanel, "ADJUST STROKE", JOptionPane.OK_CANCEL_OPTION);
                 if (result != JOptionPane.OK_OPTION) whiteBoard.setPen(new BasicStroke(oldSize, oldCap, oldJoin));
             }
             case "ERASER" -> whiteBoard.setState(WhiteBoard.Action.ERASE);

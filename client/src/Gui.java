@@ -28,6 +28,7 @@ public class Gui extends JPanel {
     private JTextField roomIDTextField;
     private JButton createButton;
     private JButton joinButton;
+    private JButton changeButton;
     private JLabel hintLabel;
     private String roomID;
     private String username;
@@ -162,7 +163,7 @@ public class Gui extends JPanel {
             }
         });
 
-        JButton changeButton = new JButton();
+        changeButton = new JButton();
         IconFontSwing.register(FontAwesome.getIconFont());
         changeButton.setIcon(IconFontSwing.buildIcon(FontAwesome.EXCHANGE, 20));
         changeButton.addActionListener(e -> {
@@ -188,15 +189,33 @@ public class Gui extends JPanel {
         hintPanel.add(hintLabel, BorderLayout.CENTER);
     }
 
-    /* HELPER FUNCTIONS */
-    private void setHint(String text, String type) {
+
+    public void disableButtons() {
+        createButton.setEnabled(false);
+        joinButton.setEnabled(false);
+        changeButton.setEnabled(false);
+    }
+
+    public void enableButtons() {
+        createButton.setEnabled(false);
+        joinButton.setEnabled(false);
+        changeButton.setEnabled(true);
+
+        if (usage == Usage.MANAGER) {
+            createButton.setEnabled(true);
+        } else {
+            joinButton.setEnabled(true);
+        }
+    }
+
+    public void setHint(String text, String type) {
         hintLabel.setText(text);
         if (type.equals("warning")) {
-            hintLabel.setForeground(Color.ORANGE);
+            hintLabel.setForeground(Color.MAGENTA);
         } else if (type.equals("info")) {
-            hintLabel.setForeground(Color.CYAN);
+            hintLabel.setForeground(Color.BLUE);
         } else if (type.equals("error")) {
-            hintLabel.setForeground(Color.CYAN);
+            hintLabel.setForeground(Color.RED);
         } else if (type.equals("welcome")) {
             hintLabel.setForeground(Color.BLACK);
         }

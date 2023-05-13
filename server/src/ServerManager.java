@@ -2,18 +2,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerManager extends Thread {
     private int serverPort;
     private ServerSocket serverSocket;
-    private final HashMap<String, Room> roomList;
+    private final ConcurrentHashMap<String, Room> roomList;
 
     public ServerManager(String[] args) {
-        roomList = new HashMap<>();
+        roomList = new ConcurrentHashMap<>();
         ServerArgs serverArgs = new ServerArgs();
         CmdLineParser parser = new CmdLineParser(serverArgs);
 
@@ -83,7 +86,6 @@ public class ServerManager extends Thread {
             req.put("roomID", roomID);
             req.put("username", user.getUsername());
             try {
-                req = roomList.get(roomID).getManager().setStat(req);
                 OutputStreamWriter writer = new OutputStreamWriter(roomList.get(roomID).getManager().getSocket().getOutputStream(), "UTF-8");
                 writer.write(req.toString() + "\n");
                 writer.flush();
@@ -105,24 +107,35 @@ public class ServerManager extends Thread {
         Room joinRoom = roomList.get(roomID);
         ServerProcessor user = joinRoom.getUserList().get(username);
 
-        res.put("header", "join-request");
+        res.put("header", "join");
         if (req.getString("permit").equals("true")) {
-            res.put("permit", "true");
+            res.put("ok", "true");
+            res.put("message", "Welcome.");
             try {
-                // set user
                 user.setCurrentStay(joinRoom);
                 user.setParticipating(true);
                 res = user.setStat(res);
-                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
                 System.out.println("[ERROR:handleJoinResponse] " + e.getMessage() + ".");
             }
+            try {
+                JSONObject oldWhiteBoard = joinRoom.getEncodeWhitBoard();
+                if (oldWhiteBoard == null) oldWhiteBoard.put("content", "");
+                oldWhiteBoard.put("header", "update-whiteboard");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
+                writer.write(oldWhiteBoard.toString() + "\n");
+                writer.flush();
+            } catch (IOException e) {
+                System.out.println("[ERROR:updateWhiteBoard] " + e.getMessage() + ".");
+            }
             // update user list
             broadcastUserList(joinRoom);
         } else if (req.getString("permit").equals("false")) {
-            res.put("permit", "false");
+            res.put("ok", "false");
+            res.put("message", "Not permitted.");
             try {
                 user.resetUser();
                 res = user.setStat(res);
@@ -137,14 +150,25 @@ public class ServerManager extends Thread {
 
     public void kickOut(Room room, String username) {
         if (room.isUserExist(username)) {
-            room.getUserList().get(username).resetUser();
+            ServerProcessor user = room.getUserList().get(username);
+            try {
+                JSONObject res = new JSONObject();
+                res.put("header", "force-quit");
+                user.resetUser();
+                res = user.setStat(res);
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
+                writer.write(res.toString() + "\n");
+                writer.flush();
+            } catch (IOException e) {
+                System.out.println("[ERROR:kickOut] " + e.getMessage() + ".");
+            }
+            room.getUserList().remove(username);
             broadcastUserList(room);
         }
     }
 
     public void userLeft(Room room, ServerProcessor user) {
         if (user.isManager()) {
-            user.resetUser();
             roomClosed(room);
         } else {
             user.resetUser();
@@ -182,24 +206,29 @@ public class ServerManager extends Thread {
     }
 
     public void roomClosed(Room room) {
-        for (ServerProcessor u : room.getUserList().values()) {
-            u.resetUser();
+        String manager = room.getManager().getUsername();
+        for (Iterator<String> keys = room.getUserList().keySet().iterator(); keys.hasNext();) {
+            String key = keys.next();
+            ServerProcessor user = room.getUserList().get(key);
+            user.resetUser();
+            if (key.equals(manager)) continue;
             JSONObject res= new JSONObject();
             res.put("header", "room-closed");
             res.put("message", "The manager has left.");
             try {
-                res = u.setStat(res);
-                OutputStreamWriter writer = new OutputStreamWriter(u.getSocket().getOutputStream(), "UTF-8");
+                res = user.setStat(res);
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
                 System.out.println("[ERROR:roomClosed] " + e.getMessage() + ".");
             }
         }
+        roomList.remove(room.getRoomID());
     }
 
     /* GETTERS */
-    public HashMap<String, Room> getRoomList() {
+    public ConcurrentHashMap<String, Room> getRoomList() {
         return roomList;
     }
 

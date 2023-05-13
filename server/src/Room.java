@@ -1,18 +1,18 @@
 import org.json.JSONObject;
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Room {
     private final String roomID;
     private final ServerProcessor manager;
-    private final HashMap<String, ServerProcessor> userList;
+    private final ConcurrentHashMap<String, ServerProcessor> userList;
     private JSONObject encodeWhitBoard;
 
     // only manager can create a new room
     public Room(String roomID, ServerProcessor manager) {
         this.roomID = roomID;
         this.manager = manager;
-        userList = new HashMap<>();
+        userList = new ConcurrentHashMap<>();
         encodeWhitBoard = new JSONObject();
         userList.put(manager.getUsername(), manager);
     }
@@ -31,7 +31,7 @@ public class Room {
     public ServerProcessor getManager() {
         return manager;
     }
-    public HashMap<String, ServerProcessor> getUserList() {
+    public ConcurrentHashMap<String, ServerProcessor> getUserList() {
         return userList;
     }
     public JSONObject getEncodeWhitBoard() {

@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.JarURLConnection;
 import java.net.Socket;
@@ -15,7 +16,9 @@ import org.json.JSONObject;
 public class ParticipantsBox extends JPanel implements ActionListener {
     private final ClientProcessor cp;
     private List<String> participants;
+    private String manager;
     private Box participantsBox;
+    private JPanel participantsPanel;
 
     public ParticipantsBox(ClientProcessor cp) {
         this.cp = cp;
@@ -35,7 +38,7 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         titleLabel.setFont(new Font("Mono", Font.BOLD, 24));
         titlePanel.add(titleLabel);
 
-        JPanel participantsPanel = new JPanel(new BorderLayout());
+        participantsPanel = new JPanel(new BorderLayout());
         participantsBox = Box.createVerticalBox();
         participantsPanel.setBackground(Color.DARK_GRAY);
         participantsPanel.add(participantsBox, BorderLayout.PAGE_START);
@@ -48,18 +51,30 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         add(participantsScrollPane, BorderLayout.CENTER);
     }
 
-    public void updateParticipants(ArrayList<String> participants) {
+    public void updateParticipants(ArrayList<String> participants, String manager) {
+        this.manager = manager;
         this.participants = participants;
         displayParticipants();
     }
 
     private void displayParticipants() {
         int count = 0;
+        participantsBox.removeAll();
+        // manager
+        JPanel participantPanel = new JPanel(new BorderLayout());
+        participantPanel.setPreferredSize(new Dimension(230,40));
+        participantPanel.setBackground(Color.LIGHT_GRAY);
+        JLabel usernameLabel = new JLabel(manager, SwingConstants.CENTER);
+        usernameLabel.setForeground(Color.BLUE);
+        usernameLabel.setFont(new Font("Mono", Font.BOLD, 16));
+        participantPanel.add(usernameLabel, BorderLayout.CENTER);
+        participantsBox.add(participantPanel);
+
         for (String p : participants) {
-            if (p.equals(cp.getUsername())) continue;
-            JPanel participantPanel = new JPanel(new BorderLayout());
+            if (p.equals(manager)) continue;
+            participantPanel = new JPanel(new BorderLayout());
             participantPanel.setPreferredSize(new Dimension(230,40));
-            if (cp.getManager()) {
+            if (cp.getManager() && !p.equals(manager)) {
                 JButton removeButton = new JButton();
                 removeButton.setIcon(IconFontSwing.buildIcon(FontAwesome.MINUS, 20));
                 removeButton.setPreferredSize(new Dimension(40, 40));
@@ -67,37 +82,36 @@ public class ParticipantsBox extends JPanel implements ActionListener {
                 removeButton.setActionCommand(p);
                 participantPanel.add(removeButton, BorderLayout.WEST);
             }
-
-            JLabel username = new JLabel(p, SwingConstants.CENTER);
-            username.setFont(new Font("Mono", Font.BOLD, 16));
-            username.setForeground(Color.WHITE);
-            participantPanel.setBackground(Color.DARK_GRAY);
-            if (count%2 == 0) participantPanel.setBackground(Color.GRAY);
-            participantPanel.add(username, BorderLayout.CENTER);
+            usernameLabel = new JLabel(p, SwingConstants.CENTER);
+            usernameLabel.setFont(new Font("Mono", Font.BOLD, 16));
+            usernameLabel.setForeground(Color.WHITE);
+            if (p.equals(cp.getUsername()))usernameLabel.setForeground(Color.MAGENTA);
+            participantPanel.setBackground(Color.LIGHT_GRAY);
+            if (count%2 == 0) participantPanel.setBackground(Color.DARK_GRAY);
+            participantPanel.add(usernameLabel, BorderLayout.CENTER);
             participantsBox.add(participantPanel);
             count++;
         }
+
+        participantsBox.revalidate();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         String name = e.getActionCommand();
-        JSONObject json = new JSONObject();
-        json.put("header", "remove");
-        json.put("body", name);
-        OutputStreamWriter OSWriter;
-
-        int res = JOptionPane.showConfirmDialog(null, "Do you want to remove "+name+"?", "KICK OUT", JOptionPane.YES_NO_OPTION);
+        int res = JOptionPane.showConfirmDialog(cp.getWhiteBoardManager(), "Do you want to remove "+ name + "?", "KICK OUT", JOptionPane.YES_NO_OPTION);
         if (res == JOptionPane.YES_OPTION) {
             try {
-                OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
-                OSWriter.write(json + "\n");
+                JSONObject req = new JSONObject();
+                req.put("header", "kick-out");
+                req.put("username", name);
+                OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
+                OSWriter.write(req + "\n");
                 OSWriter.flush();
-            } catch (Exception error) {
-                JOptionPane.showMessageDialog(null, "Connection Failed.", "CONNECTION ERROR", JOptionPane.ERROR_MESSAGE);
-                System.out.println(error.getMessage());
-                System.exit(0);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "ERROR", JOptionPane.ERROR_MESSAGE);
+                System.exit(-1);
             }
         }
     }

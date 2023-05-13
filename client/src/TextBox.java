@@ -63,8 +63,8 @@ public class TextBox extends JDialog implements ActionListener {
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(600, 150);
-        setLocationRelativeTo(null);
-        setLocation(inputPoint.x, inputPoint.y);
+        setLocationRelativeTo(whiteBoard);
+//        setLocation(whiteBoard.getX(), whiteBoard.getY());
         setResizable(false);
         setVisible(true);
     }
@@ -78,7 +78,7 @@ public class TextBox extends JDialog implements ActionListener {
             whiteBoard.setModified(true);
             whiteBoard.sendBufferImage();
         } catch (NullPointerException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("[ERROR:actionPerformed]" + ex.getMessage() + ".");
         }
         dispose();
     }

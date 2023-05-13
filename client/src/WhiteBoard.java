@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -141,7 +140,6 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
 
     public void resetState() {
         state = Action.PENDING;
-
         currPoint = null;
         prevPoint = null;
         startPoint = null;
@@ -157,14 +155,14 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
             byte[] imageBytes = output.toByteArray();
             String stringImage = Base64.getEncoder().encodeToString(imageBytes);
             JSONObject json = new JSONObject();
-            json.put("header", "drawing_canvas");
-            json.put("body", stringImage);
-//            OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-//            writer.write(json + "\n");
-//            writer.flush();
+            json.put("header", "update-whiteboard");
+            json.put("content", stringImage);
+            OutputStreamWriter writer = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
+            writer.write(json + "\n");
+            writer.flush();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Connection Failed.", "CONNECTION ERROR", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+            JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), "Connection Failed.", "CONNECTION ERROR", JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
         }
     }
 
@@ -205,60 +203,16 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     public void mouseExited(MouseEvent e) {}
 
     /* GETTERS & SETTERS */
-    public Action getState() {
-        return state;
-    }
     public void setState(Action state) {
         this.state = state;
-    }
-    public Point getCurrPoint() {
-        return currPoint;
-    }
-    public void setCurrPoint(Point currPoint) {
-        this.currPoint = currPoint;
-    }
-    public Point getPrevPoint() {
-        return prevPoint;
-    }
-    public void setPrevPoint(Point prevPoint) {
-        this.prevPoint = prevPoint;
-    }
-    public Point getStartPoint() {
-        return startPoint;
-    }
-    public void setStartPoint(Point startPoint) {
-        this.startPoint = startPoint;
-    }
-    public Point getEndPoint() {
-        return endPoint;
-    }
-    public void setEndPoint(Point endPoint) {
-        this.endPoint = endPoint;
-    }
-    public int getShapeWidth() {
-        return shapeWidth;
-    }
-    public void setShapeWidth(int shapeWidth) {
-        this.shapeWidth = shapeWidth;
-    }
-    public int getShapeHeight() {
-        return shapeHeight;
-    }
-    public void setShapeHeight(int shapeHeight) {
-        this.shapeHeight = shapeHeight;
     }
     public BufferedImage getBufferImage() {
         return bufferImage;
     }
     public void setBufferImage(BufferedImage bufferImage) {
         this.bufferImage = bufferImage;
+        isModified = true;
         repaint();
-    }
-    public BufferedImage getPrev() {
-        return prev;
-    }
-    public void setPrev(BufferedImage prev) {
-        this.prev = prev;
     }
     public Graphics2D getG2d() {
         return g2d;
@@ -284,10 +238,5 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     public void setModified(boolean modified) {
         isModified = modified;
     }
-    public Boolean getSent() {
-        return isSent;
-    }
-    public void setSent(Boolean sent) {
-        isSent = sent;
-    }
+
 }
