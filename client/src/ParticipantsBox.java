@@ -1,9 +1,12 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.JarURLConnection;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,6 @@ public class ParticipantsBox extends JPanel implements ActionListener {
     private List<String> participants;
     private String manager;
     private Box participantsBox;
-    private JPanel participantsPanel;
 
     public ParticipantsBox(ClientProcessor cp) {
         this.cp = cp;
@@ -38,7 +40,7 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         titleLabel.setFont(new Font("Mono", Font.BOLD, 24));
         titlePanel.add(titleLabel);
 
-        participantsPanel = new JPanel(new BorderLayout());
+        JPanel participantsPanel = new JPanel(new BorderLayout());
         participantsBox = Box.createVerticalBox();
         participantsPanel.setBackground(Color.DARK_GRAY);
         participantsPanel.add(participantsBox, BorderLayout.PAGE_START);
@@ -51,12 +53,14 @@ public class ParticipantsBox extends JPanel implements ActionListener {
         add(participantsScrollPane, BorderLayout.CENTER);
     }
 
+    // update to current users in the room
     public void updateParticipants(ArrayList<String> participants, String manager) {
         this.manager = manager;
         this.participants = participants;
         displayParticipants();
     }
 
+    // redraw the list
     private void displayParticipants() {
         int count = 0;
         participantsBox.removeAll();
@@ -98,7 +102,6 @@ public class ParticipantsBox extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         String name = e.getActionCommand();
         int res = JOptionPane.showConfirmDialog(cp.getWhiteBoardManager(), "Do you want to remove "+ name + "?", "KICK OUT", JOptionPane.YES_NO_OPTION);
         if (res == JOptionPane.YES_OPTION) {
@@ -110,7 +113,8 @@ public class ParticipantsBox extends JPanel implements ActionListener {
                 OSWriter.write(req + "\n");
                 OSWriter.flush();
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                System.out.println("[ERROR:KickOut] " + ex.getMessage() + ".");
                 System.exit(-1);
             }
         }

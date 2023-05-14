@@ -1,3 +1,8 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -31,17 +36,17 @@ public class TextBox extends JDialog implements ActionListener {
         fontFamily = "Serif";
 
         JLabel sizeLabel = new JLabel("Size:");
-        JComboBox<Integer> fontSizesComboBox = new JComboBox<Integer>(new Integer[] {24, 36, 48});
+        JComboBox<Integer> fontSizesComboBox = new JComboBox<>(new Integer[]{24, 36, 48});
         fontSizesComboBox.setSelectedIndex(0);
         fontSizesComboBox.addItemListener(e -> fontSize = (int) fontSizesComboBox.getSelectedItem());
 
         JLabel typeLabel = new JLabel("Type:");
-        JComboBox<String> fontTypesComboBox = new JComboBox<String>(new String[] {"Plain", "Bold", "Italic"});
+        JComboBox<String> fontTypesComboBox = new JComboBox<>(new String[]{"Plain", "Bold", "Italic"});
         fontTypesComboBox.setSelectedIndex(0);
         fontTypesComboBox.addItemListener(e -> fontType = fontTypesComboBox.getSelectedIndex());
 
         JLabel familyLabel = new JLabel("Family:");
-        JComboBox<String> fontFamiliesComboBox = new JComboBox<String>(new String[] {"Serif", "SansSerif", "Mono"});
+        JComboBox<String> fontFamiliesComboBox = new JComboBox<>(new String[]{"Serif", "SansSerif", "Mono"});
         fontFamiliesComboBox.setSelectedIndex(0);
         fontFamiliesComboBox.addItemListener(e -> fontFamily = fontFamiliesComboBox.getSelectedItem().toString());
 
@@ -64,7 +69,6 @@ public class TextBox extends JDialog implements ActionListener {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(600, 150);
         setLocationRelativeTo(whiteBoard);
-//        setLocation(whiteBoard.getX(), whiteBoard.getY());
         setResizable(false);
         setVisible(true);
     }
@@ -78,7 +82,9 @@ public class TextBox extends JDialog implements ActionListener {
             whiteBoard.setModified(true);
             whiteBoard.sendBufferImage();
         } catch (NullPointerException ex) {
-            System.out.println("[ERROR:actionPerformed]" + ex.getMessage() + ".");
+            JOptionPane.showMessageDialog(whiteBoard, ex.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+            System.out.println("[ERROR:TextBox] " + ex.getMessage() + ".");
+            System.exit(-1);
         }
         dispose();
     }

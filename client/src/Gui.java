@@ -1,7 +1,11 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 import org.json.JSONObject;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
@@ -10,6 +14,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class Gui extends JPanel {
@@ -130,17 +135,19 @@ public class Gui extends JPanel {
         createButton = new JButton("CREATE");
         createButton.setPreferredSize(new Dimension(100, 60));
         createButton.addActionListener(e -> {
-            if (validInput(usage)) {
+            if (validInput()) {
                 JSONObject req = new JSONObject();
                 try {
                     req.put("header", "create");
                     req.put("roomID", roomID);
                     req.put("username", username);
-                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), "UTF-8");
+                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                     OSWriter.write(req + "\n");
                     OSWriter.flush();
                 } catch (IOException ex) {
-                    System.out.println("[ERROR:create] " + ex.getMessage() + ".");
+                    JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("[ERROR:CreateRoom] " + ex.getMessage() + ".");
+                    System.exit(-1);
                 }
             }
         });
@@ -148,17 +155,18 @@ public class Gui extends JPanel {
         joinButton = new JButton("JOIN");
         joinButton.setPreferredSize(new Dimension(100, 60));
         joinButton.addActionListener(e -> {
-            if (validInput(usage)) {
+            if (validInput()) {
                 JSONObject req = new JSONObject();
                 try {
                     req.put("header", "join");
                     req.put("roomID", roomID);
                     req.put("username", username);
-                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), "UTF-8");
+                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                     OSWriter.write(req + "\n");
                     OSWriter.flush();
                 } catch (IOException ex) {
-                    System.out.println("[ERROR:join] " + ex.getMessage() + ".");
+                    JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("[ERROR:JoinRoom] " + ex.getMessage() + ".");
                 }
             }
         });
@@ -189,14 +197,17 @@ public class Gui extends JPanel {
         hintPanel.add(hintLabel, BorderLayout.CENTER);
     }
 
-
     public void disableButtons() {
+        usernameTextField.setEnabled(false);
+        roomIDTextField.setEnabled(false);
         createButton.setEnabled(false);
         joinButton.setEnabled(false);
         changeButton.setEnabled(false);
     }
 
     public void enableButtons() {
+        usernameTextField.setEnabled(true);
+        roomIDTextField.setEnabled(true);
         createButton.setEnabled(false);
         joinButton.setEnabled(false);
         changeButton.setEnabled(true);
@@ -210,18 +221,15 @@ public class Gui extends JPanel {
 
     public void setHint(String text, String type) {
         hintLabel.setText(text);
-        if (type.equals("warning")) {
-            hintLabel.setForeground(Color.MAGENTA);
-        } else if (type.equals("info")) {
-            hintLabel.setForeground(Color.BLUE);
-        } else if (type.equals("error")) {
-            hintLabel.setForeground(Color.RED);
-        } else if (type.equals("welcome")) {
-            hintLabel.setForeground(Color.BLACK);
+        switch (type) {
+            case "warning" -> hintLabel.setForeground(Color.MAGENTA);
+            case "info" -> hintLabel.setForeground(Color.BLUE);
+            case "error" -> hintLabel.setForeground(Color.RED);
+            case "welcome" -> hintLabel.setForeground(Color.BLACK);
         }
     }
 
-    public boolean validInput(Usage usage) {
+    public boolean validInput() {
         // check roomID
         if (roomIDTextField.getText().length() == 0) {
             setHint("Room ID cannot be empty!", "warning");

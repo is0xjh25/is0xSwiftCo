@@ -1,3 +1,8 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import org.json.JSONObject;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class WhiteBoard extends Canvas implements MouseListener, MouseMotionListener {
-
     public enum Action {
         PENDING,
         HAND_DRAW,
@@ -33,7 +37,6 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     private int shapeWidth;
     private int shapeHeight;
     private BufferedImage bufferImage;
-    private BufferedImage prev;
     private Graphics2D g2d;
     private BasicStroke pen;
     private Color color = Color.BLACK;
@@ -114,9 +117,9 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
 
         g.drawImage(bufferImage, 0, 0, null);
 
-        if (isSent) {
+        if (!isSent) {
             sendBufferImage();
-            isSent = false;
+            isSent = true;
         }
     }
 
@@ -161,7 +164,8 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
             writer.write(json + "\n");
             writer.flush();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), "Connection Failed.", "CONNECTION ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+            System.out.println("[ERROR:WhiteBoard] " + e.getMessage() + ".");
             System.exit(-1);
         }
     }
@@ -180,7 +184,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     }
 
     public void mouseReleased(MouseEvent e) {
-        this.isSent = true;
+        this.isSent = false;
         this.endPoint = e.getPoint();
         repaint();
 
@@ -218,7 +222,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
         return g2d;
     }
     public void setG2d(BufferedImage img) {
-        this.g2d = (Graphics2D) img.createGraphics();
+        this.g2d = img.createGraphics();
     }
     public BasicStroke getPen() {
         return pen;
@@ -238,5 +242,4 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
     public void setModified(boolean modified) {
         isModified = modified;
     }
-
 }

@@ -1,3 +1,8 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import javax.imageio.ImageIO;
@@ -5,11 +10,11 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 
 public class ClientProcessor extends Thread {
-
     private final Socket socket;
     private final WhiteBoardManager whiteBoardManager;
     private String username;
@@ -36,17 +41,19 @@ public class ClientProcessor extends Thread {
             while ((line = in.readLine()) != null) {
                 responseHandler(new JSONObject(line));
             }
+            System.out.println("[LEFT SERVER] " + socket.getRemoteSocketAddress().toString());
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(whiteBoardManager, "Connection failed.", "ERROR", JOptionPane.ERROR_MESSAGE);
-            System.out.println("[ERROR:run] " + e.getMessage() + ".");
+            JOptionPane.showMessageDialog(whiteBoardManager, e.getMessage() + ".", "ERROR", JOptionPane.ERROR_MESSAGE);
+            System.out.println("[ERROR:Run] " + e.getMessage() + ".");
+            System.exit(-1);
         }
     }
 
     private void responseHandler(JSONObject res) throws IOException {
-        System.out.println(res);
         if (res.getString("header").equals("error")) {
-            JOptionPane.showMessageDialog(whiteBoardManager, res.getString("message"), "ERROR", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            // has sent invalid request before
+            JOptionPane.showMessageDialog(whiteBoardManager, res.getString("message"), "COMMUNICATION ERROR", JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
         } else if (res.getString("header").equals("create")) {
             if (res.getString("ok").equals("true")) {
                 username = (res.getString("username"));
@@ -94,18 +101,17 @@ public class ClientProcessor extends Thread {
                 permission.put("permit", "false");
             }
             try {
-                OutputStreamWriter OSWriter = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+                OutputStreamWriter OSWriter = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
                 OSWriter.write(permission + "\n");
                 OSWriter.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:responseHandler] " + e.getMessage() + ".");
-                System.exit(-1);
+                System.out.println("[ERROR:ResponseHandler] " + e.getMessage() + ".");
             }
         } else if (res.getString("header").equals("update-participants")) {
             whiteBoardManager.getParticipantsBox().updateParticipants(arrayTransform(res.getJSONArray("user-list")), res.getString("manager"));
         } else if (res.getString("header").equals("force-quit")) {
             String[] options = new String[] {"No But Yes", "Who Cares"};
-            int option =  JOptionPane.showOptionDialog(whiteBoardManager, "You have been kicked out!", "SORRY",
+            JOptionPane.showOptionDialog(whiteBoardManager, "You have been kicked out!", "SORRY",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
                     null, options, options[0]);
             username = (res.getString("username"));
@@ -115,7 +121,7 @@ public class ClientProcessor extends Thread {
             whiteBoardManager.setMenu();
         } else if (res.getString("header").equals("room-closed")) {
             String[] options = new String[] {"FINE", "OK"};
-            int option =  JOptionPane.showOptionDialog(whiteBoardManager, res.getString("message"), "BYE",
+            JOptionPane.showOptionDialog(whiteBoardManager, res.getString("message"), "BYE",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
                     null, options, options[0]);
             username = (res.getString("username"));
@@ -126,20 +132,21 @@ public class ClientProcessor extends Thread {
         } else if (res.getString("header").equals("update-chat")) {
             whiteBoardManager.getChatBox().addMessage(res.getString("username"), res.getString("content"));
         } else if (res.getString("header").equals("update-whiteboard")) {
-            String encodedImage = res.getString("content");
-            if (encodedImage.length() > 0) {
-                byte[] imageBytes = Base64.getDecoder().decode((encodedImage));
-                BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-                if (image != null) {
-                    whiteBoardManager.getWhiteBoard().setG2d(image);
-                    whiteBoardManager.getWhiteBoard().setBufferImage(image);
-                    System.out.println("!!!");
+            if (res.has("content")) {
+                String encodedImage = res.getString("content");
+                if (encodedImage.length() > 0) {
+                    byte[] imageBytes = Base64.getDecoder().decode((encodedImage));
+                    BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+                    if (image != null) {
+                        whiteBoardManager.getWhiteBoard().setG2d(image);
+                        whiteBoardManager.getWhiteBoard().setBufferImage(image);
+                    }
                 }
             }
         }
     }
 
-    /* GETTERS & SETTERS */
+    /* GETTERS */
     public Socket getSocket() {
         return socket;
     }
@@ -149,26 +156,14 @@ public class ClientProcessor extends Thread {
     public String getUsername() {
         return username;
     }
-    public void setUsername(String username) {
-        this.username = username;
-    }
     public String getRoomID() {
         return roomID;
-    }
-    public void setRoomID(String roomID) {
-        this.roomID = roomID;
     }
     public Boolean getManager() {
         return isManager;
     }
-    public void setManager(Boolean manager) {
-        isManager = manager;
-    }
     public Boolean getParticipating() {
         return participating;
-    }
-    public void setParticipating(Boolean participating) {
-        this.participating = participating;
     }
 
     /* HELPER FUNCTIONS */

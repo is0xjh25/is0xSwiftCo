@@ -1,10 +1,15 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import org.json.JSONObject;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import javax.swing.*;
 
 public class WhiteBoardManager extends JFrame {
@@ -43,6 +48,7 @@ public class WhiteBoardManager extends JFrame {
         SwingUtilities.invokeLater(() -> setVisible(true));
     }
 
+    // menu page
     public void setMenu() {
         isMenu = true;
         add(gui, BorderLayout.CENTER);
@@ -58,6 +64,7 @@ public class WhiteBoardManager extends JFrame {
         SwingUtilities.invokeLater(() -> setVisible(true));
     }
 
+    // whiteboard page
     public void setWhiteBoard() {
         isMenu = false;
         whiteBoard = new WhiteBoard(cp);
@@ -101,12 +108,13 @@ public class WhiteBoardManager extends JFrame {
                     JSONObject req = new JSONObject();
                     req.put("header", "user-quit");
                     req.put("username", cp.getUsername());
-                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), "UTF-8");
+                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                     OSWriter.write(req + "\n");
                     OSWriter.flush();
                 } catch (IOException e) {
-                    System.out.println("[ERROR:closeApp] " + e.getMessage() + ".");
-                    System.exit(1);
+                    JOptionPane.showMessageDialog(this, e.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("[ERROR:CloseApp] " + e.getMessage() + ".");
+                    System.exit(-1);
                 }
             }
             System.exit(0);
@@ -114,12 +122,6 @@ public class WhiteBoardManager extends JFrame {
     }
 
     /* Getters */
-    public JPanel getWhiteBoardContainer() {
-        return whiteBoardContainer;
-    }
-    public JPanel getToolBar() {
-        return toolBar;
-    }
     public ChatBox getChatBox() {
         return chatBox;
     }
@@ -129,13 +131,7 @@ public class WhiteBoardManager extends JFrame {
     public WhiteBoard getWhiteBoard() {
         return whiteBoard;
     }
-    public ManagerBar getManagerBar() {
-        return managerBar;
-    }
     public Gui getGui() {
         return gui;
-    }
-    public Boolean getMenu() {
-        return isMenu;
     }
 }

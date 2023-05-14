@@ -1,3 +1,8 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.*;
 import javax.swing.*;
@@ -113,19 +118,19 @@ public class ToolBar extends JPanel implements ActionListener {
 
                 JLabel sizeLabel = new JLabel("Stroke Size");
                 sizeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-                JComboBox<String> sizesComboBox = new JComboBox<String>(new String[]{"2", "8", "12", "14", "18", "24"});
+                JComboBox<String> sizesComboBox = new JComboBox<>(new String[]{"2", "8", "12", "14", "18", "24"});
                 sizesComboBox.setSelectedIndex(0);
                 sizesComboBox.addItemListener(e13 -> whiteBoard.setPen(new BasicStroke(Float.parseFloat((String) sizesComboBox.getSelectedItem()), whiteBoard.getPen().getEndCap(), whiteBoard.getPen().getLineJoin())));
 
                 JLabel capLabel = new JLabel("Stroke Cap");
                 capLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-                JComboBox<String> capsComboBox = new JComboBox<String>(new String[]{"Butt", "Round", "Square"});
+                JComboBox<String> capsComboBox = new JComboBox<>(new String[]{"Butt", "Round", "Square"});
                 capsComboBox.setSelectedIndex(0);
                 capsComboBox.addItemListener(e1 -> whiteBoard.setPen(new BasicStroke(whiteBoard.getPen().getLineWidth(), capsComboBox.getSelectedIndex(), whiteBoard.getPen().getLineJoin())));
 
                 JLabel joinLabel = new JLabel("Stroke Join", SwingConstants.CENTER);
                 joinLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-                JComboBox<String> joinsComboBox = new JComboBox<String>(new String[]{"Miter", "Round", "Bevel"});
+                JComboBox<String> joinsComboBox = new JComboBox<>(new String[]{"Miter", "Round", "Bevel"});
                 joinsComboBox.setSelectedIndex(0);
                 joinsComboBox.addItemListener(e12 -> whiteBoard.setPen(new BasicStroke(whiteBoard.getPen().getLineWidth(), whiteBoard.getPen().getEndCap(), joinsComboBox.getSelectedIndex())));
 

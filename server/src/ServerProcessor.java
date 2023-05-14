@@ -1,3 +1,8 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
@@ -34,16 +39,15 @@ public class ServerProcessor implements Runnable {
                 if (currentStay != null) serverManager.userLeft(currentStay, this);
                 System.out.println("[LEFT] " + socket.getRemoteSocketAddress().toString());
             } catch (IOException e) {
-                System.out.println("[ERROR:run] " + e.getMessage() + ".");
+                System.out.println("[ERROR:Run] " + e.getMessage() + ".");
             }
         } catch (IOException e) {
-            System.out.println("[ERROR:run] " + e.getMessage() + ".");
+            System.out.println("[ERROR:Run] " + e.getMessage() + ".");
         }
     }
 
     private void requestHandler(JSONObject req) {
         JSONObject res = new JSONObject();
-        System.out.println(req);
         // join/create stage
         if (!participating && req.getString("header").equals("create")) {
             String roomID = req.getString("roomID");
@@ -156,7 +160,7 @@ public class ServerProcessor implements Runnable {
             out.write(res.toString() + "\n");
             out.flush();
         } catch (IOException e) {
-            System.out.println("[ERROR:requestHandler] " + e.getMessage() + ".");
+            System.out.println("[ERROR:RequestHandler] " + e.getMessage() + ".");
         }
     }
 
@@ -175,10 +179,10 @@ public class ServerProcessor implements Runnable {
     public void resetUser() {
         // make sure user is removed from the room
         if (currentStay != null) {
-            if (currentStay.getUserList().containsKey(username)) currentStay.getUserList().remove(username);
+            currentStay.getUserList().remove(username);
         }
-        currentStay = null;
         username = "";
+        currentStay = null;
         participating = false;
         isManager = false;
     }
@@ -210,14 +214,8 @@ public class ServerProcessor implements Runnable {
     public void setUsername(String username) {
         this.username = username;
     }
-    public Room getCurrentStay() {
-        return currentStay;
-    }
     public void setCurrentStay(Room currentStay) {
         this.currentStay = currentStay;
-    }
-    public boolean isParticipating() {
-        return participating;
     }
     public void setParticipating(boolean participating) {
         this.participating = participating;

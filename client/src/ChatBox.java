@@ -1,21 +1,23 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 import org.json.JSONObject;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class ChatBox extends JPanel {
-
-    private ClientProcessor cp;
+    private final ClientProcessor cp;
     private Box messagesBox;
     private String sent;
 
@@ -41,6 +43,7 @@ public class ChatBox extends JPanel {
         JLabel usernameLabel = new JLabel(cp.getUsername(), SwingConstants.CENTER);
         usernameLabel.setForeground(Color.WHITE);
         usernameLabel.setFont(new Font("Mono", Font.BOLD, 20));
+
         headerPanel.add(roomLabel, BorderLayout.NORTH);
         headerPanel.add(userLabel, BorderLayout.CENTER);
         headerPanel.add(usernameLabel, BorderLayout.SOUTH);
@@ -77,26 +80,24 @@ public class ChatBox extends JPanel {
         buttonPanel.setLayout(new BorderLayout());
         buttonPanel.setPreferredSize(new Dimension(40, 100));
         JButton returnButton = new JButton(IconFontSwing.buildIcon(FontAwesome.COMMENT_O, 20));
-        returnButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("82:" + sent);
-                if (!sent.isBlank()) {
-                    try {
-                        JSONObject req = new JSONObject();
-                        req.put("header", "update-chat");
-                        req.put("username", cp.getUsername());
-                        req.put("roomID", cp.getRoomID());
-                        req.put("content", sent);
-                        OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), "UTF-8");
-                        OSWriter.write(req + "\n");
-                        OSWriter.flush();
-                        addMessage(cp.getUsername(), sent);
-                        sent = "";
-                        inputTextArea.setText("");
-                    } catch (IOException ex) {
-                        System.out.println("[ERROR:textReturn] " + ex.getMessage() + ".");
-                        System.exit(-1);
-                    }
+        returnButton.addActionListener(e -> {
+            if (!sent.isBlank()) {
+                try {
+                    JSONObject req = new JSONObject();
+                    req.put("header", "update-chat");
+                    req.put("username", cp.getUsername());
+                    req.put("roomID", cp.getRoomID());
+                    req.put("content", sent);
+                    OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
+                    OSWriter.write(req + "\n");
+                    OSWriter.flush();
+                    addMessage(cp.getUsername(), sent);
+                    sent = "";
+                    inputTextArea.setText("");
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), ex.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("[ERROR:TextReturn] " + ex.getMessage() + ".");
+                    System.exit(-1);
                 }
             }
         });
@@ -111,11 +112,13 @@ public class ChatBox extends JPanel {
         add(inputPanel, BorderLayout.SOUTH);
     }
 
+    // adding a new message to chat
     public void addMessage(String username, String content) {
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.setBorder(new EmptyBorder(2, 5, 5, 0));
         JLabel usernameLabel = new JLabel("[" + username + "]");
         usernameLabel.setFont(new Font("Mono", Font.BOLD, 14));
+        // manager has special color
         if (username.equals(cp.getUsername())) usernameLabel.setForeground(Color.MAGENTA);
         usernameLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
         JTextArea contentTextArea = new JTextArea(content);

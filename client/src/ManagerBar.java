@@ -1,5 +1,9 @@
-import org.json.JSONObject;
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
 
+import org.json.JSONObject;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -112,6 +117,7 @@ public class ManagerBar extends JPanel implements ActionListener {
         whiteBoard.paint(whiteBoard.getGraphics());
         whiteBoard.repaint();
         whiteBoard.sendBufferImage();
+        whiteBoard.setModified(false);
     }
 
     private void open() {
@@ -151,7 +157,8 @@ public class ManagerBar extends JPanel implements ActionListener {
                 ImageIO.write(whiteBoard.getBufferImage(), format, file);
                 whiteBoard.setModified(false);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                System.out.println("[ERROR:Save] -> " + e.getMessage() + ".");
+                System.exit(-1);
             }
         } else {
             if (!(format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg"))) {
@@ -161,7 +168,8 @@ public class ManagerBar extends JPanel implements ActionListener {
                 ImageIO.write(whiteBoard.getBufferImage(), "jpg", file);
                 whiteBoard.setModified(false);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                System.out.println("[ERROR:Save] -> " + e.getMessage() + ".");
+                System.exit(-1);
             }
         }
     }
@@ -199,12 +207,13 @@ public class ManagerBar extends JPanel implements ActionListener {
                 JSONObject req = new JSONObject();
                 req.put("header", "user-quit");
                 req.put("username", cp.getUsername());
-                OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter OSWriter = new OutputStreamWriter(cp.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 OSWriter.write(req + "\n");
                 OSWriter.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:leftRoom] " + e.getMessage() + ".");
-                System.exit(1);
+                JOptionPane.showMessageDialog(cp.getWhiteBoardManager(), e.getMessage() + ".", "IOException", JOptionPane.ERROR_MESSAGE);
+                System.out.println("[ERROR:LeftRoom] " + e.getMessage() + ".");
+                System.exit(-1);
             }
             cp.getWhiteBoardManager().setMenu();
         }
@@ -218,7 +227,7 @@ public class ManagerBar extends JPanel implements ActionListener {
                 try {
                     Desktop.getDesktop().browse(new URI(WEBSITE));
                 } catch (URISyntaxException | IOException ex) {
-                    System.out.println("[ERROR:goWebsite] -> " + ex.getMessage() + ".");
+                    System.out.println("[ERROR:GoWebsite] -> " + ex.getMessage() + ".");
                 }
             }
         });

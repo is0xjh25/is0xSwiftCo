@@ -1,8 +1,12 @@
+// is0xSwiftCo
+// COMP90015: Assignment2 - Distributed Shared White Board
+// Developed By Yun-Chi Hsiao (1074004)
+// GitHub: https://github.com/is0xjh25
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerManager extends Thread {
     private int serverPort;
-    private ServerSocket serverSocket;
     private final ConcurrentHashMap<String, Room> roomList;
 
     public ServerManager(String[] args) {
@@ -27,13 +30,13 @@ public class ServerManager extends Thread {
         } catch (CmdLineException e) {
             System.out.println("[ERROR:ServerManager] " + e.getMessage() + ".");
             parser.printUsage(System.out);
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
     public void run() {
         try {
-            serverSocket = new ServerSocket(serverPort);
+            ServerSocket serverSocket = new ServerSocket(serverPort);
             serverSocket.setReuseAddress(true);
             System.out.println("[SUCCEED] SwiftCo server has been initiated.");
             while (true) {
@@ -42,7 +45,7 @@ public class ServerManager extends Thread {
                 new Thread(serverProcessor).start();
             }
         } catch (IOException e) {
-            System.out.println("[ERROR:run] " + e.getMessage() + ".");
+            System.out.println("[ERROR:Run] " + e.getMessage() + ".");
         }
     }
 
@@ -70,11 +73,11 @@ public class ServerManager extends Thread {
             res.put("user-list", new JSONArray(userArray));
             res.put("manager", room.getManager().getUsername());
             try {
-                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
-                writer.write(res.toString() + "\n");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
+                writer.write(res + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:updateUserList] " + e.getMessage() + ".");
+                System.out.println("[ERROR:UpdateUserList] " + e.getMessage() + ".");
             }
         }
     }
@@ -86,13 +89,13 @@ public class ServerManager extends Thread {
             req.put("roomID", roomID);
             req.put("username", user.getUsername());
             try {
-                OutputStreamWriter writer = new OutputStreamWriter(roomList.get(roomID).getManager().getSocket().getOutputStream(), "UTF-8");
-                writer.write(req.toString() + "\n");
+                OutputStreamWriter writer = new OutputStreamWriter(roomList.get(roomID).getManager().getSocket().getOutputStream(), StandardCharsets.UTF_8);
+                writer.write(req + "\n");
                 writer.flush();
                 roomList.get(roomID).addUser(user);
                 return true;
             } catch (IOException e) {
-                System.out.println("[ERROR:forwardJoinRequest] " + e.getMessage() + ".");
+                System.out.println("[ERROR:ForwardJoinRequest] " + e.getMessage() + ".");
                 return false;
             }
         } else {
@@ -119,17 +122,17 @@ public class ServerManager extends Thread {
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:handleJoinResponse] " + e.getMessage() + ".");
+                System.out.println("[ERROR:HandleJoinResponse] " + e.getMessage() + ".");
             }
             try {
                 JSONObject oldWhiteBoard = joinRoom.getEncodeWhitBoard();
                 if (oldWhiteBoard == null) oldWhiteBoard.put("content", "");
                 oldWhiteBoard.put("header", "update-whiteboard");
                 OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
-                writer.write(oldWhiteBoard.toString() + "\n");
+                writer.write(oldWhiteBoard + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:updateWhiteBoard] " + e.getMessage() + ".");
+                System.out.println("[ERROR:UpdateWhiteBoard] " + e.getMessage() + ".");
             }
             // update user list
             broadcastUserList(joinRoom);
@@ -139,11 +142,11 @@ public class ServerManager extends Thread {
             try {
                 user.resetUser();
                 res = user.setStat(res);
-                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:handleJoinRequest] " + e.getMessage() + ".");
+                System.out.println("[ERROR:HandleJoinRequest] " + e.getMessage() + ".");
             }
         }
     }
@@ -156,11 +159,11 @@ public class ServerManager extends Thread {
                 res.put("header", "force-quit");
                 user.resetUser();
                 res = user.setStat(res);
-                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:kickOut] " + e.getMessage() + ".");
+                System.out.println("[ERROR:KickOut] " + e.getMessage() + ".");
             }
             room.getUserList().remove(username);
             broadcastUserList(room);
@@ -181,11 +184,11 @@ public class ServerManager extends Thread {
         for (ServerProcessor u: room.getUserList().values()) {
             if (user.getUsername().equals(u.getUsername())) continue;
             try {
-                OutputStreamWriter writer = new OutputStreamWriter(u.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter writer = new OutputStreamWriter(u.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 writer.write(whiteboard.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:broadcastWhiteBoard] " + e.getMessage() + ".");
+                System.out.println("[ERROR:BroadcastWhiteBoard] " + e.getMessage() + ".");
             }
         }
     }
@@ -195,11 +198,11 @@ public class ServerManager extends Thread {
             for (ServerProcessor u: room.getUserList().values()) {
                 if (user.getUsername().equals(u.getUsername())) continue;
                 try {
-                    OutputStreamWriter writer = new OutputStreamWriter(u.getSocket().getOutputStream(), "UTF-8");
+                    OutputStreamWriter writer = new OutputStreamWriter(u.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                     writer.write(chat + "\n");
                     writer.flush();
                 } catch (IOException e) {
-                    System.out.println("[ERROR:broadcastChat] " + e.getMessage() + ".");
+                    System.out.println("[ERROR:BroadcastChat] " + e.getMessage() + ".");
                 }
             }
         }
@@ -217,11 +220,11 @@ public class ServerManager extends Thread {
             res.put("message", "The manager has left.");
             try {
                 res = user.setStat(res);
-                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), "UTF-8");
+                OutputStreamWriter writer = new OutputStreamWriter(user.getSocket().getOutputStream(), StandardCharsets.UTF_8);
                 writer.write(res.toString() + "\n");
                 writer.flush();
             } catch (IOException e) {
-                System.out.println("[ERROR:roomClosed] " + e.getMessage() + ".");
+                System.out.println("[ERROR:RoomClosed] " + e.getMessage() + ".");
             }
         }
         roomList.remove(room.getRoomID());
@@ -235,6 +238,6 @@ public class ServerManager extends Thread {
     /* MAIN FUNCTION*/
     public static void main(String[] args)  {
         ServerManager serverManager = new ServerManager(args);
-        serverManager.run();
+        serverManager.start();
     }
 }
