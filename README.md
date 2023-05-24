@@ -35,12 +35,25 @@ _is0xSwiftCo_ is a painting application which allows multiple users to draw simu
 
 ## System Design
 - **Overview**<br>
-- **Server Side**<br>
-- **Client Side**<br>
+To develop the program that allows multiple users to draw simultaneously on a canvas over the network, the applied concepts are socket, multi-threading, concurrency, and graphic user interface (GUI). The program is written by Java and several external libraries. Furthermore, the fundamental system architecture is client-server model which would be mainly relied on the performance of the server.
+
 - **Socket**<br>
+The socket applied for the connection between the server and client is TCP to make sure the connection is reliable and the message in sent through JSON format. Since the message includes the user’s stat, the content of chat and the canvas, all bytes are significant. Therefore, TCP could be the better choice than UDP in this circumstance.
+
 - **Graphic User Interface (GUI)**<br>
+The GUI in this program is built by _Swing (Jframe)_. There are two main panels: _Menu_ and _Whiteboard_ which have their individual task. To satisfy the chain of responsibility in behavioural design patterns, the socket will be passed into different panels (e.g., _ChatBox, ParticipantBox, Whiteboard_), therefore each component can use the socket to send the message to the server directly. Lastly, _Swing.Canvas_ is the parent class of _Whiteboard_ which supports the drawing features by using _Graphics2D_ and _BufferedImage_.
+
 - **Concurrency**<br>
+To ensure that access to shared resources is properly handled and that simultaneous actions lead to a reasonable state, _concurrentHashMap_ and _synchronized_ are used. Especially, when username and roomID cannot be duplicated, the function of join and create room need to be synchronized.
+
+- **Server Side**<br>
+On the server side, since TCP server socket is used which is reusable for connecting different clients at the same time, multi-threading is required for handling the connection between each client. To achieve multi-threading, each client is run on its belonged runner, and on each runner will record the individual stats including _username, roomID, isManager and participating_. The stat on the server side is important since the users would not exist when they leave the room, instead they back to the menu and the stat can track the user’s status and record in the room list as well. The room list is a _concurrentHasMap_ which key is the _roomID_ (in String) and the value is _Room_ object make sure the roomID is unique. Also, each _Room_ contains a user list and the manager of the room. Except the setting up process for each user, the centralised server also has the duty of broadcasting the latest canvas and user list to the participants in the same room and forwarding join-in request to the manager of the room. In general, all requests from the clients would be processed by _requestHandler()_, and it would send the response to the client.
+
+- **Client Side**<br>
+_ClientManager_ is the main class for the application on the client side. It is responsible for sending query and handle the response from the server. Also, it starts up the graphic user interface. The GUI will use the setters and getters in _ClientProcessor_ to keep the data running at the backend and the data displayed on the UI is consistent. Furthermore, since _ClientManager_ is staying in the while loop when it is connected to the server, the GUI cannot be re-rendered because _Swing (JFrame)_ is using the Event Dispatch Thread. Therefore, another thread for _ClientProcessor_ is used to ensure the connection block and GUI can execute at the same time.
+
 - **Critical Analysis**<br>
+The current system design is stable with good error handling. However, the time cost is high because of the usage of TCP. To enrich the speed of transmission, the whiteboard can be considered to use UDP while it is constantly updated by participants (therefore, the accuracy of the canvas is not that important at all). Furthermore, the current centralised server is having heavy workload when it needs to handle all the request from all clients. The better system design could be hosting every room on the server and allow user in the same room to use peer to peer network exchange data for drawing and chatting to decrease the burden on the server and higher the speed of the data transmission. The alternative way is deploying more servers to construct a cluster server to achieve load balancing.
 
 ## Basic Features
 - **Drawing**<br>
