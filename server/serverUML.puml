@@ -1,0 +1,13 @@
+@startuml
+class ServerProcessor implements Runnable
+
+class Room {}
+
+class ServerManager {}
+
+class ServerProcessor {}
+
+Room --* ServerManager
+ServerProcessor --* ServerManager
+Room o-- ServerProcessor
+@enduml

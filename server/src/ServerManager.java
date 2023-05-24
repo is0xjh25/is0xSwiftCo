@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerManager extends Thread {
+public class ServerManager {
     private int serverPort;
     private final ConcurrentHashMap<String, Room> roomList;
 
@@ -34,7 +34,7 @@ public class ServerManager extends Thread {
         }
     }
 
-    public void run() {
+    public void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(serverPort);
             serverSocket.setReuseAddress(true);

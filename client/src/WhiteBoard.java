@@ -26,7 +26,7 @@ public class WhiteBoard extends Canvas implements MouseListener, MouseMotionList
         LINE,
         CIRCLE,
         RECTANGLE,
-        OVAL,
+        OVAL
     }
 
     private Action state;

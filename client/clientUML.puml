@@ -1,0 +1,29 @@
+@startuml
+class ClientProcessor implements Runnable
+class ChatBox extends JPanel
+class ManagerBar extends JPanel implements ActionListener
+class ParticipantsBox extends JPanel implements ActionListener
+class TextBox extends JDialog implements ActionListener
+class ToolBar extends JPanel implements ActionListener
+class WhiteBoard extends Canvas implements MouseListener, MouseMotionListener
+class WhiteBoardManager extends JFrame
+class ChatBox {}
+class Gui {}
+class ClientManager {}
+class ClientProcessor {}
+class ManagerBar {}
+class ParticipantsBox {}
+class TextBox {}
+class ToolBar {}
+class WhiteBoard {}
+class WhiteBoardManager {}
+ClientProcessor --* ClientManager
+ClientProcessor *-- WhiteBoardManager
+WhiteBoard  ---* WhiteBoardManager
+ChatBox --* WhiteBoardManager
+Gui --* WhiteBoardManager
+ManagerBar --* WhiteBoardManager
+ParticipantsBox --* WhiteBoardManager
+TextBox --* WhiteBoardManager
+ToolBar --* WhiteBoardManager
+@enduml

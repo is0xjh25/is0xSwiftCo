@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 
-public class ClientProcessor extends Thread {
+public class ClientProcessor implements Runnable {
     private final Socket socket;
     private final WhiteBoardManager whiteBoardManager;
     private String username;
