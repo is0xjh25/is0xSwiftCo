@@ -132,7 +132,7 @@ There is a reporting button on the footer which can email to is0.jimhsiao@gmail.
 </p>
 
 ## Developed By
-- The application is developed by _[is0xjh25 (Yun-Chi Hsiao)](https://is0xjh25.github.io)_ 
+- The application is developed by _[is0xJim](https://linktr.ee/is0xjh25)_.
 <br/>
 <p align="left">
   <img alt="Favicon" src="demo/is0-favicon.png" width="250" >
